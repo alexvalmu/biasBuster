@@ -148,7 +148,9 @@ El worker solo acepta tráfico interno con un token OIDC válido, y eso lo compr
 
 ## 9. Despliegue continuo desde GitHub
 
-Los despliegues solo se hacen desde GitHub Actions: al hacer merge de un PR en `main`, pasa el CI y el job `deploy` espera a que se apruebe en el environment `production`. GitHub se autentica con Workload Identity Federation, sin claves JSON.
+Los despliegues solo se hacen desde GitHub Actions: al hacer merge de un PR en `main` y pasar el CI, el job `deploy` despliega en el environment `production`. GitHub se autentica con Workload Identity Federation, sin claves JSON.
+
+> El repo es privado en el plan Free, que no permite proteger `main` ni exigir aprobación en el environment: **no hagas push directo a `main`**, que también despliega. Con GitHub Pro o el repo público se pueden activar ambas cosas.
 
 ```bash
 REPO=alexvalmu/biasBuster
@@ -174,7 +176,7 @@ gcloud iam service-accounts add-iam-policy-binding $D --role=roles/iam.workloadI
   --member="principal://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/subject/repo:$REPO:environment:production"
 ```
 
-En GitHub: environment `production` con revisor obligatorio y limitado a `main`, las variables `GCP_PROJECT_ID`, `GCP_DEPLOYER_SA` y `GCP_WORKLOAD_IDENTITY_PROVIDER` (`projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/providers/biasbuster`), y `main` protegida para que solo entre por PR con el CI en verde.
+En GitHub: environment `production` limitado a la rama `main`, con las variables `GCP_PROJECT_ID`, `GCP_DEPLOYER_SA` y `GCP_WORKLOAD_IDENTITY_PROVIDER` (`projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/providers/biasbuster`).
 
 ## Operación
 
