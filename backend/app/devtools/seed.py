@@ -1,6 +1,6 @@
 """Insert a finished demo analysis so the report UI can be developed without spending on LLMs.
 
-    docker compose exec api python -m app.devtools.seed   →  /report/<DEMO_SHA>
+docker compose exec api python -m app.devtools.seed   →  /report/<DEMO_SHA>
 """
 
 import asyncio

@@ -51,7 +51,7 @@ cd frontend && npm install && npm run dev   # http://localhost:5173
 
 ## Despliegue
 
-Los despliegues se hacen al hacer merge de un PR en `main`, tras aprobarlos en el environment `production` de GitHub. Configuración inicial de GCP en [`infra/README.md`](infra/README.md).
+Los despliegues se hacen al hacer merge de un PR en `main`, tras pasar el CI (environment `production` de GitHub). Configuración inicial de GCP en [`infra/README.md`](infra/README.md).
 
 ## Control de costes
 
