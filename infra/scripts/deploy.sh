@@ -42,7 +42,7 @@ gcloud run deploy biasbuster-api --project "$PROJECT_ID" --region "$REGION" \
   --image "$IMAGE" --service-account "biasbuster-api@$PROJECT_ID.iam.gserviceaccount.com" \
   "${VPC_FLAGS[@]}" --allow-unauthenticated \
   --timeout 60 --concurrency 40 --cpu 1 --memory 512Mi --min-instances 0 --max-instances 4 \
-  --set-env-vars "^@^APP_ROLE=api@ENVIRONMENT=prod@TASKS_BACKEND=cloudtasks@GCP_PROJECT=$PROJECT_ID@GCP_LOCATION=$REGION@WORKER_URL=$WORKER_URL@TASKS_SERVICE_ACCOUNT=biasbuster-tasks@$PROJECT_ID.iam.gserviceaccount.com@CORS_ORIGINS=[\"https://$PROJECT_ID.web.app\"]" \
+  --set-env-vars "^|^APP_ROLE=api|ENVIRONMENT=prod|TASKS_BACKEND=cloudtasks|GCP_PROJECT=$PROJECT_ID|GCP_LOCATION=$REGION|WORKER_URL=$WORKER_URL|TASKS_SERVICE_ACCOUNT=biasbuster-tasks@$PROJECT_ID.iam.gserviceaccount.com|CORS_ORIGINS=[\"https://$PROJECT_ID.web.app\"]" \
   --set-secrets "DATABASE_URL=database-url:latest"
 
 echo "▶ deploying frontend"

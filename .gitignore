@@ -9,3 +9,4 @@ frontend/dist/
 .firebase/
 *.log
 .DS_Store
+Examples/

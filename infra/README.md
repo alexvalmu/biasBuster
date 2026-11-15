@@ -61,6 +61,12 @@ gcloud compute firewall-rules create allow-iap-ssh --network=default \
 ```bash
 PG_PASSWORD=$(openssl rand -hex 24)
 
+# La VM usa la cuenta de servicio por defecto de Compute, que en proyectos nuevos no tiene permisos
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+gcloud artifacts repositories add-iam-policy-binding biasbuster --location=$REGION \
+  --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/artifactregistry.reader
+
 gcloud compute instances create biasbuster-db --zone=$REGION-a \
   --machine-type=e2-micro --no-address --tags=postgres \
   --image-family=cos-stable --image-project=cos-cloud \
@@ -119,6 +125,11 @@ gcloud tasks queues create analyses --location=$REGION \
 ## 7. Primer despliegue
 
 ```bash
+# En proyectos nuevos Cloud Build usa la cuenta de servicio por defecto de Compute, que no tiene permisos
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/cloudbuild.builds.builder
+
 PROJECT_ID=$PROJECT_ID ./infra/scripts/deploy.sh
 
 # Solo Cloud Tasks (con OIDC de biasbuster-tasks) puede invocar el worker
@@ -134,6 +145,36 @@ El worker solo acepta tráfico interno con un token OIDC válido, y eso lo compr
 - **reCAPTCHA v3**: crea las claves y define `RECAPTCHA_SECRET` en la api (como secreto) y `VITE_RECAPTCHA_SITE_KEY` al compilar el frontend.
 - **Open Payments**: define `OPEN_PAYMENTS_DATASET_ID` en el worker con el id del dataset *General Payment Data* del año que quieras consultar ([openpaymentsdata.cms.gov](https://openpaymentsdata.cms.gov/)).
 - **NCBI**: `NCBI_API_KEY` sube el límite de PubMed de 3 a 10 peticiones por segundo.
+
+## 9. Despliegue continuo desde GitHub
+
+Los despliegues solo se hacen desde GitHub Actions: al hacer merge de un PR en `main`, pasa el CI y el job `deploy` espera a que se apruebe en el environment `production`. GitHub se autentica con Workload Identity Federation, sin claves JSON.
+
+```bash
+REPO=alexvalmu/biasBuster
+gcloud services enable iamcredentials.googleapis.com sts.googleapis.com firebasehosting.googleapis.com
+gcloud iam workload-identity-pools create github --location=global --display-name="GitHub Actions"
+gcloud iam workload-identity-pools providers create-oidc biasbuster --location=global --workload-identity-pool=github \
+  --issuer-uri=https://token.actions.githubusercontent.com \
+  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository,attribute.environment=assertion.environment" \
+  --attribute-condition="assertion.repository=='$REPO'"
+
+gcloud iam service-accounts create biasbuster-deployer
+D=$(SA biasbuster-deployer)
+for role in run.admin cloudbuild.builds.editor firebasehosting.admin serviceusage.serviceUsageConsumer \
+            compute.networkUser logging.viewer; do
+  gcloud projects add-iam-policy-binding $PROJECT_ID --member=serviceAccount:$D --role=roles/$role
+done
+gcloud storage buckets add-iam-policy-binding gs://${PROJECT_ID}_cloudbuild --member=serviceAccount:$D --role=roles/storage.admin
+for sa in $(SA biasbuster-api) $(SA biasbuster-worker) $PROJECT_NUMBER-compute@developer.gserviceaccount.com; do
+  gcloud iam service-accounts add-iam-policy-binding $sa --member=serviceAccount:$D --role=roles/iam.serviceAccountUser
+done
+# Solo los jobs del environment "production" de este repo pueden usar la cuenta
+gcloud iam service-accounts add-iam-policy-binding $D --role=roles/iam.workloadIdentityUser \
+  --member="principal://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/subject/repo:$REPO:environment:production"
+```
+
+En GitHub: environment `production` con revisor obligatorio y limitado a `main`, las variables `GCP_PROJECT_ID`, `GCP_DEPLOYER_SA` y `GCP_WORKLOAD_IDENTITY_PROVIDER` (`projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github/providers/biasbuster`), y `main` protegida para que solo entre por PR con el CI en verde.
 
 ## Operación
 

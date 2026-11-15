@@ -51,7 +51,7 @@ cd frontend && npm install && npm run dev   # http://localhost:5173
 
 ## Despliegue
 
-Ver [`infra/README.md`](infra/README.md): configuración inicial de GCP y `./infra/scripts/deploy.sh`.
+Los despliegues se hacen al hacer merge de un PR en `main`, tras aprobarlos en el environment `production` de GitHub. Configuración inicial de GCP en [`infra/README.md`](infra/README.md).
 
 ## Control de costes
 

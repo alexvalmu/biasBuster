@@ -12,9 +12,12 @@ PG_PASSWORD="$(meta pg-password)"
 PG_IMAGE="$(meta pg-image)"
 REGISTRY_HOST="${PG_IMAGE%%/*}"
 
-DATA_DIR=/mnt/disks/pgdata
+# /mnt/disks is tmpfs on COS; the stateful partition lives on the boot disk and survives reboots.
+DATA_DIR=/mnt/stateful_partition/pgdata
 mkdir -p "$DATA_DIR"
 
+# /root is read-only on COS: keep the docker client config in tmpfs (rewritten on every boot).
+export HOME=/tmp
 docker-credential-gcr configure-docker --registries="$REGISTRY_HOST"
 docker pull "$PG_IMAGE"
 docker rm -f postgres 2>/dev/null || true
