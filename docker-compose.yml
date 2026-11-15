@@ -1,0 +1,61 @@
+# Local development. Production runs the same image on Cloud Run (see infra/README.md).
+name: biasbuster
+
+x-backend: &backend
+  build:
+    context: ./backend
+    args:
+      INSTALL_DEV: "true"
+  env_file:
+    - path: .env
+      required: false
+  environment: &backend-env
+    DATABASE_URL: postgresql+asyncpg://biasbuster:biasbuster@db:5432/biasbuster
+    TASKS_BACKEND: local
+    WORKER_URL: http://worker:8080
+  volumes:
+    - ./backend:/app
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: biasbuster
+      POSTGRES_PASSWORD: biasbuster
+      POSTGRES_DB: biasbuster
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biasbuster"]
+      interval: 3s
+      retries: 20
+
+  api:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      APP_ROLE: api
+      RUN_MIGRATIONS: "true"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+    ports:
+      - "8000:8080"
+
+  worker:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      APP_ROLE: worker
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+    ports:
+      - "8001:8080"
+    depends_on:
+      api:
+        condition: service_started
+
+volumes:
+  pgdata:

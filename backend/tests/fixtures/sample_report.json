@@ -1,0 +1,122 @@
+{
+  "report_version": "1.0",
+  "paper": {
+    "title": "Efficacy and Safety of Examplizumab in Moderate-to-Severe Chronic Fictitis: A Randomized Controlled Trial",
+    "doi": "10.0000/demo.2026.001",
+    "pmid": null,
+    "journal": "Journal of Demonstration Medicine",
+    "year": 2025,
+    "interventions": ["examplizumab"],
+    "conditions": ["chronic fictitis"],
+    "trial_ids": ["NCT00000000"]
+  },
+  "declared_coi_statement": "A. Rivera has received consulting fees from Acme Therapeutics. The other authors declare no competing interests.",
+  "declared_funding_statement": "This study was funded by Acme Therapeutics, the manufacturer of examplizumab.",
+  "funding": [
+    {
+      "name": "Acme Therapeutics",
+      "type": "industry",
+      "declared_in_paper": true,
+      "evidence": [
+        {
+          "source": "clinicaltrials",
+          "url": "https://clinicaltrials.gov/study/NCT00000000",
+          "snippet": "Lead sponsor: Acme Therapeutics (INDUSTRY)",
+          "retrieved_at": "2026-11-14T12:00:00Z"
+        }
+      ]
+    },
+    {
+      "name": "National Institute of Examples",
+      "type": "public",
+      "declared_in_paper": false,
+      "evidence": []
+    }
+  ],
+  "authors": [
+    {
+      "name": "Alex Rivera",
+      "orcid": "0000-0000-0000-0000",
+      "affiliations": ["Department of Medicine, Example University"],
+      "relationships": [
+        {
+          "company": "Acme Therapeutics",
+          "company_type": "pharma",
+          "kind": "consultant",
+          "period": "2021-2024",
+          "amount_usd": null,
+          "declared_in_paper": true,
+          "confidence": "high",
+          "evidence": [
+            {
+              "source": "pubmed",
+              "url": "https://pubmed.ncbi.nlm.nih.gov/00000000/",
+              "snippet": "AR reports consulting fees from Acme Therapeutics.",
+              "retrieved_at": "2026-11-14T12:00:00Z"
+            }
+          ]
+        },
+        {
+          "company": "Globex Pharma",
+          "company_type": "pharma",
+          "kind": "advisory_board",
+          "period": "2023",
+          "amount_usd": 24500,
+          "declared_in_paper": false,
+          "confidence": "medium",
+          "evidence": [
+            {
+              "source": "open_payments",
+              "url": "https://openpaymentsdata.cms.gov/",
+              "snippet": "Globex Pharma · Consulting fee · $24,500",
+              "retrieved_at": "2026-11-14T12:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sam Okafor",
+      "orcid": null,
+      "affiliations": ["Acme Therapeutics, Clinical Development"],
+      "relationships": [
+        {
+          "company": "Acme Therapeutics",
+          "company_type": "pharma",
+          "kind": "employee",
+          "period": "2019-present",
+          "amount_usd": null,
+          "declared_in_paper": false,
+          "confidence": "high",
+          "evidence": [
+            {
+              "source": "openalex",
+              "url": "https://openalex.org/A0000000000",
+              "snippet": "Acme Therapeutics (type: company), 2019-2025",
+              "retrieved_at": "2026-11-14T12:00:00Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mia Chen",
+      "orcid": null,
+      "affiliations": ["School of Public Health, Example University"],
+      "relationships": []
+    }
+  ],
+  "undisclosed_count": 2,
+  "risk_level": "high",
+  "risk_score": 72,
+  "risk_breakdown": [
+    { "label": "Industry funding: Acme Therapeutics", "points": 30 },
+    { "label": "Relationships not declared in the paper", "points": 23 },
+    { "label": "Declared industry relationships", "points": 4 },
+    { "label": "Authors employed by industry", "points": 10 },
+    { "label": "Payments recorded in CMS Open Payments", "points": 5 }
+  ],
+  "summary": "DEMO DATA. The trial was sponsored by Acme Therapeutics, the manufacturer of the drug under study, which the paper declares. One author appears to be employed by the sponsor, which is not mentioned in the competing-interests statement. Another author has a possible advisory relationship with a second pharmaceutical company that is not declared in the paper.",
+  "limitations": ["This is a demo report with fictitious data."],
+  "generated_at": "2026-11-14T12:00:00Z"
+}

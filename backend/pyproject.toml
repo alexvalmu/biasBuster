@@ -1,0 +1,56 @@
+[project]
+name = "biasbuster"
+version = "0.1.0"
+description = "Detects potential conflicts of interest behind medical papers"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "python-multipart>=0.0.12",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "pgvector>=0.3.6",
+    "slowapi>=0.1.9",
+    "httpx>=0.28",
+    "pymupdf>=1.25",
+    "google-cloud-tasks>=2.18",
+    "google-auth>=2.36",
+    "requests>=2.32",
+    "langchain>=1.0",
+    "langchain-core>=1.0",
+    "langchain-openai>=1.0",
+    "langgraph>=1.0",
+    "tavily-python>=0.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "respx>=0.21",
+    "ruff>=0.8",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+# B008: FastAPI's Depends() in defaults is the idiomatic pattern
+ignore = ["B008"]
+
+[tool.ruff.lint.isort]
+# the local alembic/ migrations folder would otherwise make "alembic" look first-party
+known-third-party = ["alembic"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]

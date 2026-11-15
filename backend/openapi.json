@@ -1,0 +1,694 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "biasBuster",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/health": {
+   "get": {
+    "tags": [
+     "health"
+    ],
+    "summary": "Health",
+    "operationId": "health_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Health Health Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/analyses": {
+   "post": {
+    "tags": [
+     "analyses"
+    ],
+    "summary": "Create Analysis",
+    "operationId": "create_analysis_api_analyses_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_create_analysis_api_analyses_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AnalysisOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/analyses/{sha256}": {
+   "get": {
+    "tags": [
+     "analyses"
+    ],
+    "summary": "Get Analysis",
+    "operationId": "get_analysis_api_analyses__sha256__get",
+    "parameters": [
+     {
+      "name": "sha256",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Sha256"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AnalysisOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AnalysisOut": {
+    "properties": {
+     "sha256": {
+      "type": "string",
+      "title": "Sha256"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "queued",
+       "running",
+       "done",
+       "failed"
+      ],
+      "title": "Status"
+     },
+     "progress": {
+      "items": {
+       "$ref": "#/components/schemas/ProgressEntry"
+      },
+      "type": "array",
+      "title": "Progress",
+      "default": []
+     },
+     "report": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/BiasReport"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     }
+    },
+    "type": "object",
+    "required": [
+     "sha256",
+     "status"
+    ],
+    "title": "AnalysisOut"
+   },
+   "AuthorFinding": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "orcid": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Orcid"
+     },
+     "affiliations": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Affiliations",
+      "default": []
+     },
+     "relationships": {
+      "items": {
+       "$ref": "#/components/schemas/Relationship"
+      },
+      "type": "array",
+      "title": "Relationships",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "AuthorFinding"
+   },
+   "BiasReport": {
+    "properties": {
+     "report_version": {
+      "type": "string",
+      "const": "1.0",
+      "title": "Report Version",
+      "default": "1.0"
+     },
+     "paper": {
+      "$ref": "#/components/schemas/PaperMeta"
+     },
+     "declared_coi_statement": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Declared Coi Statement"
+     },
+     "declared_funding_statement": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Declared Funding Statement"
+     },
+     "funding": {
+      "items": {
+       "$ref": "#/components/schemas/FundingSource"
+      },
+      "type": "array",
+      "title": "Funding",
+      "default": []
+     },
+     "authors": {
+      "items": {
+       "$ref": "#/components/schemas/AuthorFinding"
+      },
+      "type": "array",
+      "title": "Authors",
+      "default": []
+     },
+     "undisclosed_count": {
+      "type": "integer",
+      "title": "Undisclosed Count",
+      "default": 0
+     },
+     "risk_level": {
+      "type": "string",
+      "enum": [
+       "low",
+       "moderate",
+       "high"
+      ],
+      "title": "Risk Level",
+      "default": "low"
+     },
+     "risk_score": {
+      "type": "integer",
+      "maximum": 100.0,
+      "minimum": 0.0,
+      "title": "Risk Score",
+      "default": 0
+     },
+     "risk_breakdown": {
+      "items": {
+       "$ref": "#/components/schemas/RiskFactor"
+      },
+      "type": "array",
+      "title": "Risk Breakdown",
+      "default": []
+     },
+     "summary": {
+      "type": "string",
+      "title": "Summary",
+      "default": ""
+     },
+     "limitations": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Limitations",
+      "default": []
+     },
+     "generated_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Generated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "paper"
+    ],
+    "title": "BiasReport"
+   },
+   "Body_create_analysis_api_analyses_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     },
+     "captcha_token": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Captcha Token"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_create_analysis_api_analyses_post"
+   },
+   "Evidence": {
+    "properties": {
+     "source": {
+      "type": "string",
+      "enum": [
+       "pubmed",
+       "europepmc",
+       "openalex",
+       "crossref",
+       "orcid",
+       "clinicaltrials",
+       "open_payments",
+       "web"
+      ],
+      "title": "Source"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url",
+      "description": "Exact URL returned by a tool. Never invent URLs."
+     },
+     "snippet": {
+      "type": "string",
+      "title": "Snippet",
+      "description": "Short verbatim excerpt supporting the claim (max ~300 chars)."
+     },
+     "retrieved_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Retrieved At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "source",
+     "url",
+     "snippet"
+    ],
+    "title": "Evidence"
+   },
+   "FundingSource": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "industry",
+       "public",
+       "nonprofit",
+       "unknown"
+      ],
+      "title": "Type"
+     },
+     "declared_in_paper": {
+      "type": "boolean",
+      "title": "Declared In Paper"
+     },
+     "evidence": {
+      "items": {
+       "$ref": "#/components/schemas/Evidence"
+      },
+      "type": "array",
+      "title": "Evidence",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "type",
+     "declared_in_paper"
+    ],
+    "title": "FundingSource"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "PaperMeta": {
+    "properties": {
+     "title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     },
+     "doi": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doi"
+     },
+     "pmid": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pmid"
+     },
+     "journal": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Journal"
+     },
+     "year": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Year"
+     },
+     "interventions": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Interventions",
+      "description": "Drugs/devices studied"
+     },
+     "conditions": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Conditions"
+     },
+     "trial_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Trial Ids",
+      "description": "e.g. NCT identifiers"
+     }
+    },
+    "type": "object",
+    "title": "PaperMeta"
+   },
+   "ProgressEntry": {
+    "properties": {
+     "ts": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Ts"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Msg"
+     }
+    },
+    "type": "object",
+    "required": [
+     "ts",
+     "msg"
+    ],
+    "title": "ProgressEntry"
+   },
+   "Relationship": {
+    "properties": {
+     "company": {
+      "type": "string",
+      "title": "Company"
+     },
+     "company_type": {
+      "type": "string",
+      "enum": [
+       "pharma",
+       "device",
+       "biotech",
+       "other"
+      ],
+      "title": "Company Type",
+      "default": "other"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "employee",
+       "consultant",
+       "speaker",
+       "advisory_board",
+       "research_grant",
+       "stock",
+       "payments",
+       "patent",
+       "other"
+      ],
+      "title": "Kind"
+     },
+     "period": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Period",
+      "description": "e.g. '2019-2022' if known"
+     },
+     "amount_usd": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount Usd"
+     },
+     "declared_in_paper": {
+      "type": "boolean",
+      "title": "Declared In Paper",
+      "description": "True only if the paper's own COI/funding statement mentions this company."
+     },
+     "confidence": {
+      "type": "string",
+      "enum": [
+       "low",
+       "medium",
+       "high"
+      ],
+      "title": "Confidence"
+     },
+     "evidence": {
+      "items": {
+       "$ref": "#/components/schemas/Evidence"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Evidence"
+     }
+    },
+    "type": "object",
+    "required": [
+     "company",
+     "kind",
+     "declared_in_paper",
+     "confidence",
+     "evidence"
+    ],
+    "title": "Relationship"
+   },
+   "RiskFactor": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "points": {
+      "type": "integer",
+      "title": "Points"
+     }
+    },
+    "type": "object",
+    "required": [
+     "label",
+     "points"
+    ],
+    "title": "RiskFactor"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   }
+  }
+ }
+}
