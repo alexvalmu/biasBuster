@@ -1,4 +1,11 @@
-# bias_buster_
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/logo-dark.svg">
+    <img src="docs/brand/logo-light.svg" alt="biasbuster" width="340">
+  </picture>
+</p>
+
+<p align="center"><em>Who paid for this paper?</em></p>
 
 Sube el PDF de un estudio médico y un conjunto de agentes investiga si sus autores o su financiación tienen relación con la industria (farmacéuticas, fabricantes de dispositivos…) y si el paper lo declara. El resultado es un informe con estructura fija y una puntuación de riesgo reproducible, publicado en `/report/{sha256}`.
 
