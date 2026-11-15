@@ -61,6 +61,12 @@ gcloud compute firewall-rules create allow-iap-ssh --network=default \
 ```bash
 PG_PASSWORD=$(openssl rand -hex 24)
 
+# La VM usa la cuenta de servicio por defecto de Compute, que en proyectos nuevos no tiene permisos
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+gcloud artifacts repositories add-iam-policy-binding biasbuster --location=$REGION \
+  --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/artifactregistry.reader
+
 gcloud compute instances create biasbuster-db --zone=$REGION-a \
   --machine-type=e2-micro --no-address --tags=postgres \
   --image-family=cos-stable --image-project=cos-cloud \
@@ -119,6 +125,11 @@ gcloud tasks queues create analyses --location=$REGION \
 ## 7. Primer despliegue
 
 ```bash
+# En proyectos nuevos Cloud Build usa la cuenta de servicio por defecto de Compute, que no tiene permisos
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+  --role=roles/cloudbuild.builds.builder
+
 PROJECT_ID=$PROJECT_ID ./infra/scripts/deploy.sh
 
 # Solo Cloud Tasks (con OIDC de biasbuster-tasks) puede invocar el worker
